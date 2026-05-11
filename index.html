@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Card Vault | El Catálogo Definitivo</title>
+    <meta name="description" content="Explora y cataloga todas las cartas de Pokémon TCG existentes. Precios, rarezas y detalles técnicos en tiempo real.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header & Search -->
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-icon"><i class="fas fa-bolt"></i></span>
+                <h1>Poke<span>Vault</span></h1>
+            </div>
+            <div class="search-wrapper">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="cardSearch" placeholder="Buscar por nombre (ej: Charizard)...">
+                    <button id="clearSearch" class="hidden"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="filterToggle" class="btn-icon"><i class="fas fa-filter"></i></button>
+            </div>
+        </header>
+
+        <!-- Filters Section -->
+        <aside class="filters-panel" id="filtersPanel">
+            <div class="filter-group">
+                <label>Tipo</label>
+                <select id="typeFilter">
+                    <option value="">Todos los Tipos</option>
+                    <!-- Dynamically filled -->
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Rareza</label>
+                <select id="rarityFilter">
+                    <option value="">Todas las Rarezas</option>
+                    <!-- Dynamically filled -->
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Set / Serie</label>
+                <select id="setFilter">
+                    <option value="">Todos los Sets</option>
+                    <!-- Dynamically filled -->
+                </select>
+            </div>
+            <button id="applyFilters" class="btn-primary">Aplicar Filtros</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <div class="results-stats">
+                <span id="resultCount">Cargando cartas...</span>
+            </div>
+
+            <div class="cards-grid" id="cardsGrid">
+                <!-- Cards will be injected here -->
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+
+            <div class="load-more-container">
+                <button id="loadMoreBtn" class="btn-secondary hidden">Cargar más cartas</button>
+                <div id="loader" class="loader hidden"></div>
+            </div>
+        </main>
+
+        <!-- Card Detail Modal -->
+        <div id="cardModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div id="modalBody" class="modal-body">
+                    <!-- Detail content injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
