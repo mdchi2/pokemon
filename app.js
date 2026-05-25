@@ -8,8 +8,11 @@ let currentQuery = '';
 let currentFilters = {
     types: '',
     rarity: '',
-    set: ''
+    set: '',
+    series: ''
 };
+
+let allSets = [];
 
 // DOM Elements
 const cardsGrid = document.getElementById('cardsGrid');
@@ -20,6 +23,7 @@ const filtersPanel = document.getElementById('filtersPanel');
 const typeFilter = document.getElementById('typeFilter');
 const rarityFilter = document.getElementById('rarityFilter');
 const setFilter = document.getElementById('setFilter');
+const seriesFilter = document.getElementById('seriesFilter');
 const applyFiltersBtn = document.getElementById('applyFilters');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 const loader = document.getElementById('loader');
@@ -43,9 +47,15 @@ async function fetchInitialData() {
             fetch(`${API_URL}/sets?pageSize=100&orderBy=-releaseDate`).then(r => r.json())
         ]);
 
+        allSets = sets.data || [];
+        
+        // Extract unique series
+        const seriesList = [...new Set(allSets.map(s => s.series).filter(Boolean))];
+
         fillSelect(typeFilter, types.data);
         fillSelect(rarityFilter, rarities.data);
-        fillSelect(setFilter, sets.data.map(s => ({ name: s.name, id: s.id })), true);
+        fillSelect(seriesFilter, seriesList);
+        fillSelect(setFilter, allSets.map(s => ({ name: s.name, id: s.id })), true);
     } catch (error) {
         console.error("Error fetching filter data:", error);
     }
@@ -79,6 +89,7 @@ async function fetchCards(append = false) {
         if (currentFilters.types) query.push(`types:"${currentFilters.types}"`);
         if (currentFilters.rarity) query.push(`rarity:"${currentFilters.rarity}"`);
         if (currentFilters.set) query.push(`set.id:"${currentFilters.set}"`);
+        if (currentFilters.series) query.push(`set.series:"${currentFilters.series}"`);
 
         const queryString = query.length > 0 ? `&q=${query.join(' ')}` : '';
         const response = await fetch(`${API_URL}/cards?page=${currentPage}&pageSize=${pageSize}${queryString}`, {
@@ -223,10 +234,30 @@ function setupEventListeners() {
         filtersPanel.classList.toggle('active');
     });
 
+    seriesFilter.addEventListener('change', (e) => {
+        currentFilters.series = e.target.value;
+        updateSetFilterOptions();
+        fetchCards();
+    });
+
     applyFiltersBtn.addEventListener('click', () => {
         currentFilters.types = typeFilter.value;
         currentFilters.rarity = rarityFilter.value;
         currentFilters.set = setFilter.value;
+
+        // If a set is selected, ensure the series dropdown aligns with it
+        if (currentFilters.set) {
+            const selectedSetObj = allSets.find(s => s.id === currentFilters.set);
+            if (selectedSetObj && selectedSetObj.series) {
+                currentFilters.series = selectedSetObj.series;
+                seriesFilter.value = selectedSetObj.series;
+                updateSetFilterOptions();
+                setFilter.value = currentFilters.set;
+            }
+        } else if (!currentFilters.series) {
+            // If they reset set and there's no series selected in seriesFilter, keep it as is
+        }
+
         filtersPanel.classList.remove('active');
         fetchCards();
     });
@@ -243,4 +274,24 @@ function setupEventListeners() {
     window.addEventListener('click', (e) => {
         if (e.target === cardModal) cardModal.classList.remove('active');
     });
+}
+
+function updateSetFilterOptions() {
+    // Clear all except the first option ("Todos los Sets")
+    setFilter.innerHTML = '<option value="">Todos los Sets</option>';
+    
+    // Filter the sets
+    let filteredSets = allSets;
+    if (currentFilters.series) {
+        filteredSets = allSets.filter(s => s.series === currentFilters.series);
+    }
+    
+    // Repopulate
+    fillSelect(setFilter, filteredSets.map(s => ({ name: s.name, id: s.id })), true);
+    
+    // Reset set filter if selected set is not in the new filtered list
+    if (currentFilters.set && !filteredSets.some(s => s.id === currentFilters.set)) {
+        currentFilters.set = '';
+        setFilter.value = '';
+    }
 }
